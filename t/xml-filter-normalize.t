@@ -32,6 +32,24 @@ my @test_data = (
     },
     #----------------------------------------
     {
+        desc => 'preserves correct input in no namespace',
+        in => {
+            Prefix       => '',
+            NamespaceURI => '',
+            LocalName    => 'bar',
+            Name         => 'bar',
+            Attributes   => {},
+        },
+        expected => {
+            Prefix       => '',
+            NamespaceURI => '',
+            LocalName    => 'bar',
+            Name         => 'bar',
+            Attributes   => {},
+        },
+    },
+    #----------------------------------------
+    {
         desc => 'corrects missing Name',
         in => {
             Prefix       => 'foo',
