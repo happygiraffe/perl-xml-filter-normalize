@@ -6,6 +6,7 @@ use warnings;
 
 use Test::More 'no_plan';
 use XML::Filter::Normalize;
+use XML::NamespaceSupport;
 
 my $TEST_NS = 'http://example.com/ns/';
 
@@ -92,7 +93,15 @@ sub test_basics {
 sub test_correct_element_data {
     my ( $t ) = @_;
     my $norm = XML::Filter::Normalize->new();
-    my $out = $norm->correct_element_data( $t->{ in } );
+
+    # Add in any supplied namespaces.
+    my $nsup = XML::NamespaceSupport->new();
+    if ( $t->{ ns } ) {
+        $nsup->push_context();
+        $nsup->declare_prefix( @$_ ) foreach @{ $t->{ ns } };
+    }
+
+    my $out = $norm->correct_element_data( $nsup, $t->{ in } );
     is_deeply( $out, $t->{ expected }, "correct_element() $t->{ desc }" );
 }
 

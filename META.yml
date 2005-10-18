@@ -1,11 +1,11 @@
 ---
 name: XML-Filter-Normalize
 version: 0.01
-author:
-  - 'Dominic Mitchell, C<< <cpan@happygiraffe.net> >>'
-abstract: The great new XML::Filter::Normalize!
+author: ~
+abstract: Clean up SAX event streams
 license: bsd
 requires:
+  XML::NamespaceSupport: 0
   XML::SAX::Base: 0
   perl: 5.6.1
 recommends:

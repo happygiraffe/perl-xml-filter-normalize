@@ -11,7 +11,7 @@ use base qw( XML::SAX::Base );
 
 sub correct_element_data {
     my $self = shift;
-    my ( $data ) = @_;
+    my ( $nsup, $data ) = @_;
     if ( !$data->{ Name } && $data->{ Prefix } && $data->{ LocalName } ) {
         $data->{ Name } = $data->{ Prefix } . ':' . $data->{ LocalName };
     } elsif ( !$data->{ Prefix } && $data->{ Name } ) {
@@ -52,9 +52,19 @@ by L<XML::SAX::Base>.
 
 =over 4
 
+=item start_document()
+
+=item start_prefix_mapping()
+
 =item start_element()
 
 =item end_element()
+
+=item end_prefix_mapping()
+
+=item end_document()
+
+These are standard SAX event handlers.
 
 =item correct_element_data()
 
