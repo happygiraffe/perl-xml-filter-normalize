@@ -99,6 +99,40 @@ my @test_data = (
             Prefix       => 'foo',
         },
     },
+    #----------------------------------------
+    {
+        desc => 'corrects missing Prefix & Name',
+        ns => [ [ foo => $TEST_NS ] ],
+        in => {
+            Attributes   => {},
+            LocalName    => 'bar',
+            NamespaceURI => $TEST_NS,
+        },
+        expected => {
+            Attributes   => {},
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
+    #----------------------------------------
+    {
+        desc => 'corrects missing Prefix & NamespaceURI',
+        ns => [ [ foo => $TEST_NS ] ],
+        in => {
+            Attributes   => {},
+            Name         => 'foo:bar',
+            LocalName    => 'bar',
+        },
+        expected => {
+            Attributes   => {},
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
 );
 test_correct_element_data( $_ ) foreach @test_data;
 

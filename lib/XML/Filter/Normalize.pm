@@ -13,6 +13,7 @@ sub correct_element_data {
     my $self = shift;
     my ( $nsup, $data ) = @_;
 
+    # Simple "one thing missing" cases.
     if ( !$data->{ Name } && $data->{ Prefix } && $data->{ LocalName } ) {
         $data->{ Name } = $data->{ Prefix } . ':' . $data->{ LocalName };
     } elsif ( !$data->{ Prefix } && $data->{ Name } ) {
@@ -23,6 +24,23 @@ sub correct_element_data {
 
     # By this point, we should have a Prefix, if we're going to.
     if ( !$data->{ NamespaceURI } && $data->{ Prefix } ) {
+        $data->{ NamespaceURI } = $nsup->get_uri( $data->{ Prefix } );
+    }
+
+    if (   $data->{ NamespaceURI }
+        && $data->{ LocalName }
+        && !$data->{ Prefix }
+        && !$data->{ Name } )
+    {
+        $data->{ Prefix } = $nsup->get_prefix( $data->{ NamespaceURI } );
+        $data->{ Name }   = $data->{ Prefix } . ':' . $data->{ LocalName };
+    }
+
+    if (   $data->{ Name }
+        && !$data->{ Prefix }
+        && !$data->{ NamespaceURI } )
+    {
+        $data->{ Prefix } = ( split /:/, $data->{ Name }, 2 )[0];
         $data->{ NamespaceURI } = $nsup->get_uri( $data->{ Prefix } );
     }
 
