@@ -50,6 +50,24 @@ my @test_data = (
     },
     #----------------------------------------
     {
+        desc => 'preserves correct input in default namespace',
+        in => {
+            Prefix       => '',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Name         => 'bar',
+            Attributes   => {},
+        },
+        expected => {
+            Prefix       => '',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Name         => 'bar',
+            Attributes   => {},
+        },
+    },
+    #----------------------------------------
+    {
         desc => 'corrects missing Name',
         in => {
             Prefix       => 'foo',
