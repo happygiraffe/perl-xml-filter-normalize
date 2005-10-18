@@ -28,7 +28,58 @@ my @test_data = (
             Name         => 'foo:bar',
             Attributes   => {},
         },
-    }
+    },
+    #----------------------------------------
+    {
+        desc => 'corrects missing Name',
+        in => {
+            Prefix       => 'foo',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Attributes   => {},
+        },
+        expected => {
+            Prefix       => 'foo',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            Attributes   => {},
+        },
+    },
+    #----------------------------------------
+    {
+        desc => 'corrects missing Prefix',
+        in => {
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Attributes   => {},
+        },
+        expected => {
+            Prefix       => 'foo',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            Attributes   => {},
+        },
+    },
+    #----------------------------------------
+    {
+        desc => 'corrects missing LocalName',
+        in => {
+            Prefix       => 'foo',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Attributes   => {},
+        },
+        expected => {
+            Prefix       => 'foo',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            Attributes   => {},
+        },
+    },
 );
 test_correct_element_data( $_ ) foreach @test_data;
 

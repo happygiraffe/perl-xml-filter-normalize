@@ -12,6 +12,13 @@ use base qw( XML::SAX::Base );
 sub correct_element_data {
     my $self = shift;
     my ( $data ) = @_;
+    if ( !$data->{ Name } && $data->{ Prefix } && $data->{ LocalName } ) {
+        $data->{ Name } = $data->{ Prefix } . ':' . $data->{ LocalName };
+    } elsif ( !$data->{ Prefix } && $data->{ Name } ) {
+        $data->{ Prefix } = ( split /:/, $data->{ Name }, 2 )[0];
+    } elsif ( !$data->{ LocalName } && $data->{ Name } ) {
+        $data->{ LocalName } = ( split /:/, $data->{ Name }, 2 )[1];
+    }
     return $data;
 }
 
