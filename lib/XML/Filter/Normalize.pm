@@ -9,6 +9,12 @@ our $VERSION = '0.01';
 
 use base qw( XML::SAX::Base );
 
+sub correct_element_data {
+    my $self = shift;
+    my ( $data ) = @_;
+    return $data;
+}
+
 1;
 __END__
 
@@ -42,6 +48,10 @@ by L<XML::SAX::Base>.
 =item start_element()
 
 =item end_element()
+
+=item correct_element_data()
+
+This is a private method and should not be called directly.
 
 =back
 
