@@ -12,6 +12,7 @@ use base qw( XML::SAX::Base );
 sub correct_element_data {
     my $self = shift;
     my ( $nsup, $data ) = @_;
+
     if ( !$data->{ Name } && $data->{ Prefix } && $data->{ LocalName } ) {
         $data->{ Name } = $data->{ Prefix } . ':' . $data->{ LocalName };
     } elsif ( !$data->{ Prefix } && $data->{ Name } ) {
@@ -19,6 +20,12 @@ sub correct_element_data {
     } elsif ( !$data->{ LocalName } && $data->{ Name } ) {
         $data->{ LocalName } = ( split /:/, $data->{ Name }, 2 )[1];
     }
+
+    # By this point, we should have a Prefix, if we're going to.
+    if ( !$data->{ NamespaceURI } && $data->{ Prefix } ) {
+        $data->{ NamespaceURI } = $nsup->get_uri( $data->{ Prefix } );
+    }
+
     return $data;
 }
 

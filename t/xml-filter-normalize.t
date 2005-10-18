@@ -81,6 +81,24 @@ my @test_data = (
             Attributes   => {},
         },
     },
+    #----------------------------------------
+    {
+        desc => 'corrects missing NamespaceURI',
+        ns => [ [ foo => $TEST_NS ] ],
+        in => {
+            Attributes   => {},
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            Prefix       => 'foo',
+        },
+        expected => {
+            Attributes   => {},
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
 );
 test_correct_element_data( $_ ) foreach @test_data;
 
