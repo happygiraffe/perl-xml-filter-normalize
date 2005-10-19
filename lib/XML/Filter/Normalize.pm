@@ -155,7 +155,9 @@ These are standard SAX event handlers.
 
 =item correct_element_data()
 
-This is a private method and should not be called directly.
+=item nsup()
+
+These are private methods and should not be called directly.
 
 =back
 
