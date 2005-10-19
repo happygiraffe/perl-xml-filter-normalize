@@ -8,4 +8,5 @@ README
 t/00-load.t
 t/pod-coverage.t
 t/pod.t
+t/Recorder.pm
 t/xml-filter-normalize.t

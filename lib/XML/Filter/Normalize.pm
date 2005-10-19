@@ -5,9 +5,68 @@ package XML::Filter::Normalize;
 use warnings;
 use strict;
 
+use XML::NamespaceSupport;
+
 our $VERSION = '0.01';
 
 use base qw( XML::SAX::Base );
+
+#---------------------------------------------------------------------
+# SAX Handlers
+#---------------------------------------------------------------------
+
+sub start_document {
+    my $self = shift;
+    $self->nsup( XML::NamespaceSupport->new() );
+    $self->nsup->push_context();
+    return $self->SUPER::start_document( @_ );
+}
+
+sub end_document {
+    my $self = shift;
+    $self->nsup( undef );
+    return $self->SUPER::end_document( @_ );
+}
+
+sub start_prefix_mapping {
+    my $self = shift;
+    my ( $data ) = @_;
+    $self->nsup->declare_prefix( $data->{ Prefix }, $data->{ NamespaceURI } );
+    return $self->SUPER::start_prefix_mapping( $data );
+}
+
+sub end_prefix_mapping {
+    my $self = shift;
+    my ( $data ) = @_;
+    $self->nsup->undeclare_prefix( $data->{ Prefix } );
+    return $self->SUPER::end_prefix_mapping( $data );
+}
+
+sub start_element {
+    my $self = shift;
+    my ( $data ) = @_;
+    $self->nsup->push_context();
+    $self->correct_element_data( $self->nsup(), $data );
+    return $self->SUPER::start_element( $data );
+}
+
+sub end_element {
+    my $self = shift;
+    my ( $data ) = @_;
+    $self->correct_element_data( $self->nsup(), $data );
+    $self->nsup->pop_context();
+    return $self->SUPER::end_element( $data );
+}
+
+#---------------------------------------------------------------------
+# Internals
+#---------------------------------------------------------------------
+
+sub nsup {
+    my $self = shift;
+    $self->{ nsup } = $_[0] if @_;
+    return $self->{ nsup };
+}
 
 sub correct_element_data {
     my $self = shift;

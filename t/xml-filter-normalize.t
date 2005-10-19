@@ -8,6 +8,10 @@ use Test::More 'no_plan';
 use XML::Filter::Normalize;
 use XML::NamespaceSupport;
 
+# Pull in a small utility module for the tests to use.
+use lib 't';
+use Recorder;
+
 my $TEST_NS = 'http://example.com/ns/';
 
 test_basics();
@@ -172,6 +176,11 @@ my @test_data = (
 );
 test_correct_element_data( $_ ) foreach @test_data;
 
+# Now that all looks ok, try some real SAX work.
+test_sax_handler();
+
+#------------------------------------------------------------
+
 sub test_basics {
     my $norm = XML::Filter::Normalize->new();
     isa_ok( $norm, 'XML::Filter::Normalize' );
@@ -191,6 +200,63 @@ sub test_correct_element_data {
 
     my $out = $norm->correct_element_data( $nsup, $t->{ in } );
     is_deeply( $out, $t->{ expected }, "correct_element() $t->{ desc }" );
+}
+
+sub test_sax_handler {
+
+    my $record = Recorder->new();
+    my $norm   = XML::Filter::Normalize->new( Handler => $record );
+
+    # Simulate a SAX parse, but with known brokenness.
+    $norm->start_document( {} );
+    $norm->start_prefix_mapping(
+        { Prefix => 'foo', NamespaceURI => $TEST_NS } );
+    my $el = {
+        Prefix     => 'foo',
+        LocalName  => 'bar',
+        Attributes => {},
+    };
+    $norm->start_element( $el );
+    $norm->end_element( $el );
+    $norm->end_prefix_mapping(
+        { Prefix => 'foo', NamespaceURI => $TEST_NS } );
+    $norm->end_document( {} );
+
+    my @expected = (
+        [ start_document => {} ],
+        [
+            start_prefix_mapping =>
+                { Prefix => 'foo', NamespaceURI => $TEST_NS }
+        ],
+        [
+            start_element => {
+                Name         => 'foo:bar',
+                LocalName    => 'bar',
+                Prefix       => 'foo',
+                NamespaceURI => $TEST_NS,
+                Attributes   => {},
+            }
+        ],
+        [
+            end_element => {
+                Name         => 'foo:bar',
+                LocalName    => 'bar',
+                Prefix       => 'foo',
+                NamespaceURI => $TEST_NS,
+                Attributes   => {},
+            }
+        ],
+        [ end_prefix_mapping => { Prefix => 'foo', NamespaceURI => $TEST_NS } ],
+        [ end_document       => {} ],
+    );
+    my @events = $record->get_events;
+    is_deeply( \@events, \@expected, 'XFN works as a SAX handler' )
+        or dumpvar( [ \@events ], ['*events'] );
+}
+
+sub dumpvar {
+    require Data::Dumper;
+    diag( Data::Dumper->new(@_)->Indent(1)->Sortkeys(1)->Dump );
 }
 
 # vim: set ai et sw=4 syntax=perl :
