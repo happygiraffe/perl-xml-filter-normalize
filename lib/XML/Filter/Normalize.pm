@@ -106,6 +106,12 @@ sub correct_element_data {
         $data->{ NamespaceURI } = $nsup->get_uri( $data->{ Prefix } );
     }
 
+    while ( my ( $k, $v ) = each %{ $data->{ Attributes } } ) {
+        if ( !$v->{ Prefix } && $v->{ Name } && $v->{ Name } =~ m/:/ ) {
+            $v->{ Prefix } = ( split /:/, $v->{ Name }, 2 )[0];
+        }
+    }
+
     return $data;
 }
 

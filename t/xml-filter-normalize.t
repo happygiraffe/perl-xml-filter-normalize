@@ -173,6 +173,40 @@ my @test_data = (
             Prefix       => 'foo',
         },
     },
+    #----------------------------------------
+    {
+        desc => 'corrects missing Prefix in Attribute',
+        ns   => [ [ foo => $TEST_NS ] ],
+        in   => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    Name         => 'foo:baz',
+                    NamespaceURI => $TEST_NS,
+                    Value        => 42,
+                },
+            },
+            Name         => 'foo:bar',
+            LocalName    => 'bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+        expected => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    Name         => 'foo:baz',
+                    NamespaceURI => $TEST_NS,
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
 );
 test_correct_element_data( $_ ) foreach @test_data;
 
@@ -207,7 +241,7 @@ sub test_sax_handler {
     my $record = Recorder->new();
     my $norm   = XML::Filter::Normalize->new( Handler => $record );
 
-    # Simulate a SAX parse, but with known brokenness.
+    # Simulate a SAX parse, but with known b0rkenness.
     $norm->start_document( {} );
     $norm->start_prefix_mapping(
         { Prefix => 'foo', NamespaceURI => $TEST_NS } );
