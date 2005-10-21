@@ -172,6 +172,17 @@ Version 0.01
 =head1 SYNOPSIS
 
   # Just like any normal SAX filter.
+  my $w    = XML::SAX::Writer->new();
+  my $norm = XML::Filter::Normalize->new( Handler => $w );
+  my $p    = XML::SAX::ParserFactory->parser( Handler => $handler );
+
+  # If you want your SAX consumer to always have well formed events.
+  package My::Filter;
+  sub new {
+    my $class = shift;
+    my $self = $self->SUPER::new( @_ );
+    return XML::Filter::Normalize->new( Handler => $self );
+  }
 
 =head1 DESCRIPTION
 
@@ -217,7 +228,7 @@ Given an L<XML::NamespaceSupport> object and a Data hash from a SAX
 element event, attempt to ensure it conforms to the SAX specification.
 This method corrects the main hash, and all subordinate attribute
 hashes.  It also ensures that the keys of the attribute hashes are
-correct.
+correct (ie, they match the L<NamespaceURI> and L<LocalName> values).
 
 If it does not find at least a LocalName, it will throw an exception.
 
@@ -235,6 +246,10 @@ Tries to get I<Prefix> from I<Name>.
 =item *
 
 Tries to get I<LocalName> from I<Name>.
+
+=item *
+
+Tries to get I<NamespaceURI> from I<Prefix>.
 
 =item *
 
