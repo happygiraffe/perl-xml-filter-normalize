@@ -82,8 +82,8 @@ sub correct_element_data {
     my ( $uri, $prefix, $lname, $name ) =
         $self->extract_name_tuple( $nsup, $data );
 
-    if ( !$uri && !$lname ) {
-        $self->whinge('No NamespaceURI or LocalName found');
+    if ( !$lname ) {
+        $self->whinge('No LocalName found');
     }
 
     $data->{ NamespaceURI } = $uri;
@@ -179,9 +179,10 @@ This class implements a "clean up" filter for SAX events.  It's mostly
 intended to be used by authors of SAX serializers (eg:
 L<XML::SAX::Writer>, L<XML::Genx::SAXWriter>).  If the input event
 stream is incomplete in some fashion, it will attempt to correct it
-before passing it on.
+before passing it on.  If it cannot correct it, an exception will be
+thrown.
 
-=head1 METHODS
+=head1 PUBLIC METHODS
 
 The following methods are implemented.  All others are handled directly
 by L<XML::SAX::Base>.
@@ -200,28 +201,76 @@ by L<XML::SAX::Base>.
 
 =item end_document()
 
-These are standard SAX event handlers.
+These are standard SAX event handlers, which are overridden.
+
+=back
+
+=head1 PRIVATE METHODS
+
+These should not be called directly.
+
+=over 4
 
 =item correct_element_data()
 
+Given an L<XML::NamespaceSupport> object and a Data hash from a SAX
+element event, attempt to ensure it conforms to the SAX specification.
+This method corrects the main hash, and all subordinate attribute
+hashes.  It also ensures that the keys of the attribute hashes are
+correct.
+
+If it does not find at least a LocalName, it will throw an exception.
+
 =item extract_name_tuple()
+
+Given a hash with some or all of I<NamespaceURI>, I<Prefix>,
+I<LocalName> and I<Name> keys, try to work out the missing ones.
+
+=over 4
+
+=item *
+
+Tries to get I<Prefix> from I<Name>.
+
+=item *
+
+Tries to get I<LocalName> from I<Name>.
+
+=item *
+
+Tries to get I<Prefix> from I<NamespaceURI>.
+
+=item *
+
+Forces returned I<Name> to conform to the values for I<Prefix> and
+I<LocalName>.
+
+=back
+
+Returns the values for I<NamespaceURI>, I<Prefix>, I<LocalName> and
+I<Name> in that order.
 
 =item nsup()
 
+Accessor for an L<XML::NamespaceSupport> object.
+
 =item whinge()
 
-These are private methods and should not be called directly.
+Throw a new exception of the class XML::Filter::Normalize::Exception.
 
 =back
 
 =head1 SEE ALSO
 
+L<XML::NamespaceSupport>,
 L<XML::Genx::SAXWriter>,
 L<XML::SAX::Base>,
 L<XML::SAX::Writer>.
 
 The conversation that started this module on the perl-xml mailing list.
 L<http://aspn.activestate.com/ASPN/Mail/Message/Perl-XML/2858464>
+
+The Perl SAX spec, L<http://perl-xml.sourceforge.net/perl-sax/>.
 
 =head1 AUTHOR
 

@@ -316,7 +316,7 @@ my @exceptions_data = (
     {
         desc => 'no input data at all',
         in => {},
-        expected => 'No NamespaceURI or LocalName found',
+        expected => 'No LocalName found',
     },
 );
 test_bad_element_data( $_ ) foreach @exceptions_data;
