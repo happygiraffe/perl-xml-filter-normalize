@@ -312,6 +312,15 @@ my @test_data = (
 );
 test_correct_element_data( $_ ) foreach @test_data;
 
+my @exceptions_data = (
+    {
+        desc => 'no input data at all',
+        in => {},
+        expected => 'No NamespaceURI or LocalName found',
+    },
+);
+test_bad_element_data( $_ ) foreach @exceptions_data;
+
 # Now that all looks ok, try some real SAX work.
 test_sax_handler();
 
@@ -336,6 +345,16 @@ sub test_correct_element_data {
 
     my $out = $norm->correct_element_data( $nsup, $t->{ in } );
     is_deeply( $out, $t->{ expected }, "correct_element() $t->{ desc }" );
+}
+
+sub test_bad_element_data {
+    my ( $t ) = @_;
+    my $norm = XML::Filter::Normalize->new();
+    my $nsup = XML::NamespaceSupport->new();
+
+    eval { $norm->correct_element_data( $nsup, $t->{ in } ) };
+    isa_ok( $@, 'XML::SAX::Exception' );
+    is( "$@", "$t->{expected}\n", "test_bad_element_data: $t->{desc}" );
 }
 
 sub test_sax_handler {

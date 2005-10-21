@@ -6,10 +6,17 @@ use warnings;
 use strict;
 
 use XML::NamespaceSupport;
+use XML::SAX::Exception;
 
 our $VERSION = '0.01';
 
 use base qw( XML::SAX::Base );
+
+#---------------------------------------------------------------------
+# Create a new exception class.
+#---------------------------------------------------------------------
+
+@XML::Filter::Normalize::Exception::ISA = qw( XML::SAX::Exception );
 
 #---------------------------------------------------------------------
 # SAX Handlers
@@ -74,6 +81,10 @@ sub correct_element_data {
 
     my ( $uri, $prefix, $lname, $name ) =
         $self->extract_name_tuple( $nsup, $data );
+
+    if ( !$uri && !$lname ) {
+        $self->whinge('No NamespaceURI or LocalName found');
+    }
 
     $data->{ NamespaceURI } = $uri;
     $data->{ Prefix }       = $prefix;
@@ -140,6 +151,13 @@ sub extract_name_tuple {
     return $uri, $prefix, $lname, $name;
 }
 
+sub whinge {
+    my $self = shift;
+    my ( $msg ) = @_;
+
+    XML::Filter::Normalize::Exception->throw( Message => $msg );
+}
+
 1;
 __END__
 
@@ -189,6 +207,8 @@ These are standard SAX event handlers.
 =item extract_name_tuple()
 
 =item nsup()
+
+=item whinge()
 
 These are private methods and should not be called directly.
 
