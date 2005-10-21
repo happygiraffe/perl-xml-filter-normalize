@@ -275,6 +275,40 @@ my @test_data = (
             Prefix       => 'foo',
         },
     },
+    #----------------------------------------
+    {
+        desc => 'corrects Attribute key errors',
+        in   => {
+            Attributes => {
+                "{}baz" => {
+                    LocalName    => 'baz',
+                    NamespaceURI => $TEST_NS,
+                    Name         => 'foo:bar',
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            Name         => 'foo:bar',
+            LocalName    => 'bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+        expected => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    Name         => 'foo:baz',
+                    NamespaceURI => $TEST_NS,
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
 );
 test_correct_element_data( $_ ) foreach @test_data;
 

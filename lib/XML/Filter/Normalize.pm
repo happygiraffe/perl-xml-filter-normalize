@@ -80,6 +80,7 @@ sub correct_element_data {
     $data->{ LocalName }    = $lname;
     $data->{ Name }         = $name;
 
+    my %attr;
     foreach my $v ( values %{ $data->{ Attributes } } ) {
         my ( $uri, $prefix, $lname, $name ) =
             $self->extract_name_tuple( $nsup, $v );
@@ -87,7 +88,11 @@ sub correct_element_data {
         $v->{ Prefix }       = $prefix;
         $v->{ LocalName }    = $lname;
         $v->{ Name }         = $name;
+        my $k = "{$uri}$lname";
+        $attr{ $k } = $v;
     }
+    # Ensure that all attributes are in the correct key.
+    $data->{ Attributes } = \%attr;
 
     # XXX Should fix up namespace declarations too.
 
