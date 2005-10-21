@@ -110,6 +110,12 @@ sub correct_element_data {
         if ( !$v->{ Prefix } && $v->{ Name } && $v->{ Name } =~ m/:/ ) {
             $v->{ Prefix } = ( split /:/, $v->{ Name }, 2 )[0];
         }
+        elsif ( !$v->{ NamespaceURI } && $v->{ Prefix } ) {
+            $v->{ NamespaceURI } = $nsup->get_uri( $v->{ Prefix } );
+        }
+        elsif ( !$v->{ Name } && $v->{ Prefix } && $v->{ LocalName } ) {
+            $v->{ Name } = $v->{ Prefix } . ':' . $v->{ LocalName };
+        }
     }
 
     return $data;

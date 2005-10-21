@@ -207,6 +207,74 @@ my @test_data = (
             Prefix       => 'foo',
         },
     },
+    #----------------------------------------
+    {
+        desc => 'corrects missing NamespaceURI in Attribute',
+        ns   => [ [ foo => $TEST_NS ] ],
+        in   => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    Name         => 'foo:baz',
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            Name         => 'foo:bar',
+            LocalName    => 'bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+        expected => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    Name         => 'foo:baz',
+                    NamespaceURI => $TEST_NS,
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
+    #----------------------------------------
+    {
+        desc => 'corrects missing Name in Attribute',
+        ns   => [ [ foo => $TEST_NS ] ],
+        in   => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    NamespaceURI => $TEST_NS,
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            Name         => 'foo:bar',
+            LocalName    => 'bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+        expected => {
+            Attributes => {
+                "{$TEST_NS}baz" => {
+                    LocalName    => 'baz',
+                    Name         => 'foo:baz',
+                    NamespaceURI => $TEST_NS,
+                    Prefix       => 'foo',
+                    Value        => 42,
+                },
+            },
+            LocalName    => 'bar',
+            Name         => 'foo:bar',
+            NamespaceURI => $TEST_NS,
+            Prefix       => 'foo',
+        },
+    },
 );
 test_correct_element_data( $_ ) foreach @test_data;
 
