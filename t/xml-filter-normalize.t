@@ -123,6 +123,23 @@ my @test_data = (
     },
     #----------------------------------------
     {
+        desc => 'corrects missing LocalName in default Namespace',
+        in => {
+            Prefix       => '',
+            Name         => 'bar',
+            NamespaceURI => $TEST_NS,
+            Attributes   => {},
+        },
+        expected => {
+            Prefix       => '',
+            NamespaceURI => $TEST_NS,
+            LocalName    => 'bar',
+            Name         => 'bar',
+            Attributes   => {},
+        },
+    },
+    #----------------------------------------
+    {
         desc => 'corrects missing NamespaceURI',
         ns => [ [ foo => $TEST_NS ] ],
         in => {
