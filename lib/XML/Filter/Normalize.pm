@@ -72,53 +72,67 @@ sub correct_element_data {
     my $self = shift;
     my ( $nsup, $data ) = @_;
 
-    # Simple "one thing missing" cases.
-    if ( !$data->{ Name } && $data->{ Prefix } && $data->{ LocalName } ) {
-        $data->{ Name } = $data->{ Prefix } . ':' . $data->{ LocalName };
-    }
-    elsif ( !$data->{ Prefix } && $data->{ Name } && $data->{ Name } =~ m/:/ ) {
-        $data->{ Prefix } = ( split /:/, $data->{ Name }, 2 )[0];
-    }
-    elsif ( !$data->{ LocalName } && $data->{ Name } ) {
-        $data->{ LocalName } = ( split /:/, $data->{ Name }, 2 )[1];
+    my ( $uri, $prefix, $lname, $name ) =
+        $self->extract_name_tuple( $nsup, $data );
+
+    $data->{ NamespaceURI } = $uri;
+    $data->{ Prefix }       = $prefix;
+    $data->{ LocalName }    = $lname;
+    $data->{ Name }         = $name;
+
+    foreach my $v ( values %{ $data->{ Attributes } } ) {
+        my ( $uri, $prefix, $lname, $name ) =
+            $self->extract_name_tuple( $nsup, $v );
+        $v->{ NamespaceURI } = $uri;
+        $v->{ Prefix }       = $prefix;
+        $v->{ LocalName }    = $lname;
+        $v->{ Name }         = $name;
     }
 
-    # By this point, we should have a Prefix, if we're going to.
-    if ( !$data->{ NamespaceURI } && $data->{ Prefix } ) {
-        $data->{ NamespaceURI } = $nsup->get_uri( $data->{ Prefix } );
-    }
-
-    if (   $data->{ NamespaceURI }
-        && $data->{ LocalName }
-        && !$data->{ Prefix }
-        && !$data->{ Name } )
-    {
-        $data->{ Prefix } = $nsup->get_prefix( $data->{ NamespaceURI } );
-        $data->{ Name }   = $data->{ Prefix } . ':' . $data->{ LocalName };
-    }
-
-    if (   $data->{ Name }
-        && $data->{ Name } =~ m/:/
-        && !$data->{ Prefix }
-        && !$data->{ NamespaceURI } )
-    {
-        $data->{ Prefix } = ( split /:/, $data->{ Name }, 2 )[0];
-        $data->{ NamespaceURI } = $nsup->get_uri( $data->{ Prefix } );
-    }
-
-    while ( my ( $k, $v ) = each %{ $data->{ Attributes } } ) {
-        if ( !$v->{ Prefix } && $v->{ Name } && $v->{ Name } =~ m/:/ ) {
-            $v->{ Prefix } = ( split /:/, $v->{ Name }, 2 )[0];
-        }
-        elsif ( !$v->{ NamespaceURI } && $v->{ Prefix } ) {
-            $v->{ NamespaceURI } = $nsup->get_uri( $v->{ Prefix } );
-        }
-        elsif ( !$v->{ Name } && $v->{ Prefix } && $v->{ LocalName } ) {
-            $v->{ Name } = $v->{ Prefix } . ':' . $v->{ LocalName };
-        }
-    }
+    # XXX Should fix up namespace declarations too.
 
     return $data;
+}
+
+sub extract_name_tuple {
+    my $self = shift;
+    my ( $nsup, $data ) = @_;
+    my ( $uri, $prefix, $lname, $name ) =
+        @$data{ qw( NamespaceURI Prefix LocalName Name ) };
+
+    # Take a missing prefix from the name if it's there and looks like
+    # we are using a prefix.
+    if ( !$prefix && $name && $name =~ m/:/ ) {
+        $prefix = ( split /:/, $name, 2 )[0];
+    }
+
+    # If we don't have a localname, try to take it from name.
+    if ( !$lname && $name ) {
+        if ( $name =~ m/:/ ) {
+            $lname = ( split /:/, $name, 2 )[1];
+        }
+        else {
+            $lname = $name;
+        }
+    }
+
+    # If we don't have an NS URI, try to work it out from the prefix.
+    # NB: We can't detect anything in the default namespace if it's
+    # missing it's URI here.
+    if ( !$uri && $prefix ) {
+        $uri = $nsup->get_uri( $prefix );
+    }
+
+    # If we still have no prefix, but we do have a namespace URI, look
+    # it up.
+    if ( !$prefix && $uri ) {
+        $prefix = $nsup->get_prefix( $uri );
+        $prefix = '' if !defined $prefix;
+    }
+
+    # Force name to be what we know it should be.
+    $name = $prefix ? $prefix . ':' . $lname : $lname;
+    return $uri, $prefix, $lname, $name;
 }
 
 1;
@@ -166,6 +180,8 @@ by L<XML::SAX::Base>.
 These are standard SAX event handlers.
 
 =item correct_element_data()
+
+=item extract_name_tuple()
 
 =item nsup()
 
